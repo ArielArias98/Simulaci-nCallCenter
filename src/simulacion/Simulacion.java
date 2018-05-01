@@ -1,10 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package simulacion;
-
 
 import java.util.Random;
 import java.util.LinkedList;
@@ -99,11 +93,11 @@ public class Simulacion {
     private int genteAtendida;
     //Numero de clientes que han entrado en el sistema
     private int numClientes;
-	//Numero de clientes que pasaron por la cola
-	private int numClientesCola;
+    //Numero de clientes que pasaron por la cola
+    private int numClientesCola;
     // Estadisticas
     private int tiempoEnColaTotal;
-	private int tiempoEnServidoresTotal;
+    private int tiempoEnServidoresTotal;
 
     void run() {
         /*Declarar datos */
@@ -117,23 +111,23 @@ public class Simulacion {
     void mostrarInterfaz() {
         boolean repetir = true;
         while (repetir) {
-            String clientesProcesar = JOptionPane.showInputDialog(null, "Ingrese el número de clientes que serán atendidos en la simulación.");
+            String clientesProcesar = JOptionPane.showInputDialog(null, "Ingrese el numero de clientes que serán atendidos en la simulacion.");
             if (clientesProcesar != null) {
                 //cantidad de clientes que se deben procesar 
                 int cantidadClientes = Integer.parseInt(clientesProcesar);
                 instanciaSimulacion(cantidadClientes);
                 int Button = JOptionPane.YES_NO_OPTION;
-                Button = JOptionPane.showConfirmDialog(null, "Simulación Finalizada, desea ver las estadísticas?", "Simulación", Button);
+                Button = JOptionPane.showConfirmDialog(null, "Simulacion Finalizada, desea ver las estadisticas?", "Simulacion", Button);
                 if (Button == JOptionPane.YES_OPTION) {
                     /*Mostrar Estadisticas */
                     JOptionPane.showMessageDialog(null, "Estadisticas: \n"
-							+ "Tiempo promedio en cola: " + (tiempoEnColaTotal/numClientesCola) + "\n"
-							+ "Tiempo promedio en servidor: " + (tiempoEnServidoresTotal/numClientesCola) + "\n"
-							+ "Personas que quedaban en cola: " + colaEspera.size());
+                            + "Tiempo promedio en cola: " + (tiempoEnColaTotal / numClientesCola) + "\n"
+                            + "Tiempo promedio en servidor: " + (tiempoEnServidoresTotal / numClientesCola) + "\n"
+                            + "Personas que quedaban en cola: " + queueLength);
                     /*Agregar*/
                 }
                 int Button2 = JOptionPane.YES_NO_OPTION;
-                Button2 = JOptionPane.showConfirmDialog(null, "Desea realizar otra simulación?", "Simulación", Button2);
+                Button2 = JOptionPane.showConfirmDialog(null, "Desea realizar otra simulacion?", "Simulacion", Button2);
                 if (Button2 != JOptionPane.YES_OPTION) {
                     repetir = false;
                 }
@@ -179,49 +173,46 @@ public class Simulacion {
     }
 
     void insertarEvento(Evento even) {
-		//Si la lista est� vac�a, meto el evento de primero
-		if(listaEventos.isEmpty()){
-			listaEventos.add(even);
-		}
-		else{
-	        boolean ordenado = false; //Me indica si ya la ordene
-			ListIterator<Evento> itr = listaEventos.listIterator(); //Iterador para recorrer la lista
-			//Mientras no haya llegado al final de la lista y no haya encontrado la posicion correcta
-			while(itr.hasNext() && !ordenado){
-				Evento evenItr = itr.next();	//Posicion actual a procesar
-				//Si el tiempo es mayor, nada mas pongo el evento antes
-				if(evenItr.tiempo > even.tiempo){
-					itr.previous(); //Me devuelvo, ya que next() me hace pasarme de donde queria ponerlo
-					itr.add(even);
-					ordenado = true;
-				}
-				//Si los tiempos son iguales tengo que poner las salidas antes de las llegadas
-				else if(evenItr.tiempo == even.tiempo){
-					itr.previous();
-					//Si el evento que voy a colocar es una salida, simplemente lo pongo de primero dentro de los eventos con el mismo tiempo que el
-					if(even.tipo == 1){
-						itr.add(even);
-					}
-					else{
-						//Si no, me muevo en la lista hasat encontrar uno de tipo llegada, el final de los tipo salida o el fin de la lista
-						while(itr.hasNext() && evenItr.tipo != 0 && evenItr.tiempo == even.tiempo){
-							//Tener cuidado al mover el iterador ya que next() siempre mueve la posicion del mismo
-							itr.next();
-							if(itr.hasNext()){
-								evenItr = itr.next();
-								itr.previous();
-							}
-						}
-						itr.add(even);
-					}
-					ordenado = true;
-				}
-			}
-			//Si no encontre a alguien con tiempo mayor, lo meto al final de la lista
-			if(!ordenado){
-				itr.add(even);
-			}
-		}
+        //Si la lista est� vac�a, meto el evento de primero
+        if (listaEventos.isEmpty()) {
+            listaEventos.add(even);
+        } else {
+            boolean ordenado = false; //Me indica si ya la ordene
+            ListIterator<Evento> itr = listaEventos.listIterator(); //Iterador para recorrer la lista
+            //Mientras no haya llegado al final de la lista y no haya encontrado la posicion correcta
+            while (itr.hasNext() && !ordenado) {
+                Evento evenItr = itr.next();	//Posicion actual a procesar
+                //Si el tiempo es mayor, nada mas pongo el evento antes
+                if (evenItr.tiempo > even.tiempo) {
+                    itr.previous(); //Me devuelvo, ya que next() me hace pasarme de donde queria ponerlo
+                    itr.add(even);
+                    ordenado = true;
+                } //Si los tiempos son iguales tengo que poner las salidas antes de las llegadas
+                else if (evenItr.tiempo == even.tiempo) {
+                    itr.previous();
+                    //Si el evento que voy a colocar es una salida, simplemente lo pongo de primero dentro de los eventos con el mismo tiempo que el
+                    if (even.tipo == 1) {
+                        itr.add(even);
+                    } else {
+                        //Si no, me muevo en la lista hasat encontrar uno de tipo llegada, el final de los tipo salida o el fin de la lista
+                        while (itr.hasNext() && evenItr.tipo != 0 && evenItr.tiempo == even.tiempo) {
+                            //Tener cuidado al mover el iterador ya que next() siempre mueve la posicion del mismo
+                            itr.next();
+                            if (itr.hasNext()) {
+                                evenItr = itr.next();
+                                itr.previous();
+                            }
+                        }
+                        itr.add(even);
+                    }
+                    ordenado = true;
+                }
+            }
+            //Si no encontre a alguien con tiempo mayor, lo meto al final de la lista
+            if (!ordenado) {
+                itr.add(even);
+            }
+        }
     }
 
     void generarLlegada() {
@@ -232,12 +223,10 @@ public class Simulacion {
         // Revisa cual es el tiempo que debe poner, con respecto a la funcion acumulada
         if (val < 0.40) {
             tiempoNuevo++;
-        } 
-		else {
+        } else {
             if (val < 0.75) {
                 tiempoNuevo += 2;
-            } 
-			else {
+            } else {
                 tiempoNuevo += 3;
             }
         }
@@ -269,7 +258,7 @@ public class Simulacion {
             }
         }
         insertarEvento(new Evento(1, time));
-		tiempoEnServidoresTotal += time - tiempoDeReloj;
+        tiempoEnServidoresTotal += time - tiempoDeReloj;
     }
 
     void procesarLlegada() {
@@ -287,11 +276,10 @@ public class Simulacion {
                 if (servers[s] == false) {
                     servers[s] = true;
                     encontroServer = true;
-					servDisponibles--;
                 }
                 s++;
             }
-			numClientesCola++;
+            numClientesCola++;
             // Agrega la salida al servidor
             generarSalida();
             // Actualizar la cantidad de servidores disponibles
@@ -308,7 +296,7 @@ public class Simulacion {
             // Si aun hay personas, atender al siguiente en cola
             queueLength--;
             Cliente atendido = colaEspera.remove();
-			numClientesCola++;
+            numClientesCola++;
             tiempoEnColaTotal += tiempoDeReloj - atendido.tiempoLlegada;
             generarSalida();
         } else {
@@ -318,10 +306,10 @@ public class Simulacion {
                 if (servers[s] == true) {
                     servers[s] = false;
                     encontroServer = true;
-					servDisponibles++;
                 }
                 s++;
             }
+            servDisponibles++;
         }
     }
 }
