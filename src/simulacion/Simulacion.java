@@ -20,9 +20,9 @@ public class Simulacion {
         // Identificador unico para cada cliente
         private int identificador;
         // Tiempo en el cual llega el cliente al sistema
-        private int tiempoLlegada;
+        private float tiempoLlegada;
 
-        public Cliente(int identificador, int tiempoLlegada) {
+        public Cliente(int identificador, float tiempoLlegada) {
             this.identificador = identificador;
             this.tiempoLlegada = tiempoLlegada;
         }
@@ -35,11 +35,11 @@ public class Simulacion {
             this.identificador = identificador;
         }
 
-        public int getTiempoLlegada() {
+        public float getTiempoLlegada() {
             return tiempoLlegada;
         }
 
-        public void setTiempoLlegada(int tiempoLlegada) {
+        public void setTiempoLlegada(float tiempoLlegada) {
             this.tiempoLlegada = tiempoLlegada;
         }
     }
@@ -51,9 +51,9 @@ public class Simulacion {
         // 1 = Salida
         private int tipo;
         // Tiempo en que se ejecuta el evento
-        private int tiempo;
+        private float tiempo;
 
-        public Evento(int tipo, int tiempo) {
+        public Evento(int tipo, float tiempo) {
             this.tipo = tipo;
             this.tiempo = tiempo;
         }
@@ -66,11 +66,11 @@ public class Simulacion {
             this.tipo = tipo;
         }
 
-        public int getTiempo() {
+        public float getTiempo() {
             return tiempo;
         }
 
-        public void setTiempo(int tiempo) {
+        public void setTiempo(float tiempo) {
             this.tiempo = tiempo;
         }
     }
@@ -82,7 +82,7 @@ public class Simulacion {
     // True es que estan ocupados
     private boolean[] servers;
     // Tiempo actual de relog
-    private int tiempoDeReloj;
+    private float tiempoDeReloj;
     // Lista de Eventos
     private LinkedList<Evento> listaEventos;
     // Cola de eventos por procesar
@@ -97,7 +97,6 @@ public class Simulacion {
     private int numClientesCola;
     // Estadisticas
     private int tiempoEnColaTotal;
-    private int tiempoEnServidoresTotal;
 
     void run() {
         /*Declarar datos */
@@ -121,8 +120,7 @@ public class Simulacion {
                 if (Button == JOptionPane.YES_OPTION) {
                     /*Mostrar Estadisticas */
                     JOptionPane.showMessageDialog(null, "Estadisticas: \n"
-                            + "Tiempo promedio en cola: " + (tiempoEnColaTotal / numClientesCola) + "\n"
-                            + "Tiempo promedio en servidor: " + (tiempoEnServidoresTotal / numClientesCola) + "\n"
+                            + "Tiempo promedio en cola: " + (tiempoEnColaTotal / (double) numClientesCola) + "\n"
                             + "Personas que quedaban en cola: " + queueLength);
                     /*Agregar*/
                 }
@@ -142,7 +140,8 @@ public class Simulacion {
         for (int index = 0; index < MAXSERVERS; index++) {
             servers[index] = false;
         }
-        numClientes = tiempoEnColaTotal = queueLength = tiempoDeReloj = genteAtendida = numClientesCola = tiempoEnColaTotal = tiempoEnServidoresTotal = 0;
+		tiempoDeReloj = 0;
+        numClientes = tiempoEnColaTotal = queueLength = genteAtendida = numClientesCola = tiempoEnColaTotal = 0;
         servDisponibles = MAXSERVERS;
         listaEventos.clear();
         colaEspera.clear();
@@ -183,19 +182,19 @@ public class Simulacion {
             while (itr.hasNext() && !ordenado) {
                 Evento evenItr = itr.next();	//Posicion actual a procesar
                 //Si el tiempo es mayor, nada mas pongo el evento antes
-                if (evenItr.tiempo > even.tiempo) {
+                if (evenItr.getTiempo() > even.getTiempo()) {
                     itr.previous(); //Me devuelvo, ya que next() me hace pasarme de donde queria ponerlo
                     itr.add(even);
                     ordenado = true;
                 } //Si los tiempos son iguales tengo que poner las salidas antes de las llegadas
-                else if (evenItr.tiempo == even.tiempo) {
+                else if (evenItr.getTiempo() == even.getTiempo()) {
                     itr.previous();
                     //Si el evento que voy a colocar es una salida, simplemente lo pongo de primero dentro de los eventos con el mismo tiempo que el
-                    if (even.tipo == 1) {
+                    if (even.getTipo() == 1) {
                         itr.add(even);
                     } else {
                         //Si no, me muevo en la lista hasat encontrar uno de tipo llegada, el final de los tipo salida o el fin de la lista
-                        while (itr.hasNext() && evenItr.tipo != 0 && evenItr.tiempo == even.tiempo) {
+                        while (itr.hasNext() && evenItr.getTipo() != 0 && evenItr.getTiempo() == even.getTiempo()) {
                             //Tener cuidado al mover el iterador ya que next() siempre mueve la posicion del mismo
                             itr.next();
                             if (itr.hasNext()) {
@@ -219,7 +218,7 @@ public class Simulacion {
         // Genera el numero aleatorio
         Random rand = new Random();
         float val = rand.nextFloat();
-        int tiempoNuevo = tiempoDeReloj;
+        float tiempoNuevo = tiempoDeReloj;
         // Revisa cual es el tiempo que debe poner, con respecto a la funcion acumulada
         if (val < 0.40) {
             tiempoNuevo++;
@@ -237,7 +236,7 @@ public class Simulacion {
         // Genera el numero aleatorio
         Random randomN = new Random();
         float number = randomN.nextFloat();
-        int time = tiempoDeReloj;
+        float time = tiempoDeReloj;
         // Revisa cual es el tiempo que debe poner, con respecto a la funcion acumulada
         if (number < 0.10) {
             time += 2;
@@ -258,7 +257,6 @@ public class Simulacion {
             }
         }
         insertarEvento(new Evento(1, time));
-        tiempoEnServidoresTotal += time - tiempoDeReloj;
     }
 
     void procesarLlegada() {
@@ -297,7 +295,7 @@ public class Simulacion {
             queueLength--;
             Cliente atendido = colaEspera.remove();
             numClientesCola++;
-            tiempoEnColaTotal += tiempoDeReloj - atendido.tiempoLlegada;
+            tiempoEnColaTotal += tiempoDeReloj - atendido.getTiempoLlegada();
             generarSalida();
         } else {
             // Si no hay personas en cola, poner el servidor en desocupado.
